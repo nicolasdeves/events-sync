@@ -1,0 +1,1 @@
+- Aceitar as pessoas nos eventos
