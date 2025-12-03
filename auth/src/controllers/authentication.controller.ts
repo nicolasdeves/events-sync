@@ -3,8 +3,6 @@ import { prisma } from "../lib/prisma";
 import z from "zod";
 
 export async function login(request: FastifyRequest, reply: FastifyReply) {
-    console.log('entrou p fazer login')
-    console.log(request.body)
     try {
         const schema = z.object({
             name: z.string(),
@@ -26,20 +24,15 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
             })
           }
 
-        const token = await reply.jwtSign({
-        sign: {
-            sub: user.id,
-            email: user.email,
-        },
-        });
+          const token = await reply.jwtSign(
+            { sub: user.id, email: user.email },
+            { expiresIn: '15m' }               
+          );
 
-        const refreshToken = await reply.jwtSign({
-        sign: {
-            sub: user.id,
-            email: user.email,
-            expiresIn: '7d',
-        },
-        });
+        const refreshToken = await reply.jwtSign(
+            { sub: user.id, email: user.email }, 
+            { expiresIn: '7d' }                 
+        );
 
         return reply
         .status(200)
@@ -47,7 +40,7 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
             path: '/',
             httpOnly: true,
             sameSite: true,
-            secure: true,
+            secure: false,
         })
         .send({
             token,
@@ -56,4 +49,64 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
     } catch (error) {
         console.log(error)
     }
+}
+
+export async function refresh(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const refreshToken = request.cookies.refreshToken;
+
+        console.log(refreshToken)
+        if (!refreshToken) {
+            return reply.status(401).send({ 
+                error: 'Refresh token não encontrado' 
+            });
+        }
+
+        const decoded = request.server.jwt.verify<{ sub: string; email: string }>(refreshToken);
+
+        const user = await prisma.user.findUnique({ 
+            where: { id: Number(decoded.sub) } 
+        });
+
+        if (!user) {
+            return reply.status(401).send({ 
+                error: 'Usuário não encontrado' 
+            });
+        }
+
+        const token = await reply.jwtSign(
+            { sub: user.id, email: user.email }, 
+            { expiresIn: '15m' }               
+          );
+          
+          const newRefreshToken = await reply.jwtSign(
+            { sub: user.id, email: user.email }, 
+            { expiresIn: '7d' }            
+          );
+
+        return reply
+            .status(200)
+            .setCookie('refreshToken', newRefreshToken, {
+                path: '/',
+                httpOnly: true,
+                sameSite: true,
+                secure: false,
+            })
+            .send({
+                token,
+            });
+
+    } catch (error) {
+        return reply.status(401).send({ 
+            error: 'Refresh token inválido ou expirado' 
+        });
+    }
+}
+
+export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    await request.jwtVerify();
+  } catch (error) {
+    return reply.status(401).send({ message: 'Unauthorized' });
+  }
 }

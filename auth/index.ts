@@ -10,7 +10,9 @@ dotenv.config()
 
 const port = Number(process.env.PORT) || 3000;
 
-const fastify = Fastify({ logger: true })
+const fastify = Fastify(
+  // { logger: true }
+)
 
 fastify.register(cors, {
   origin: "http://localhost:5173",
@@ -18,7 +20,7 @@ fastify.register(cors, {
 });
 
 fastify.register(fastifyJwt, {
-  secret: "supersecret" // troque por algo seguro, pode usar env
+  secret: "supersecret" // usar env
 });
 
 fastify.register(cookie, {
