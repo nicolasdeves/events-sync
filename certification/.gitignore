@@ -1,0 +1,3 @@
+arquivos/*
+*.db
+__pycache__
