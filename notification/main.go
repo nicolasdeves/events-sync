@@ -5,11 +5,40 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-gomail/gomail"
 	"github.com/joho/godotenv"
 )
+
+func VerifyJwtMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		auth := c.GetHeader("Authorization")
+
+		if auth == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		token := strings.TrimPrefix(auth, "Bearer ")
+
+		req, _ := http.NewRequest("POST", os.Getenv("JWT_VERIFY_URL"), nil)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+
+		if err != nil || resp.StatusCode != 200 {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
 
 func main() {
 
@@ -20,7 +49,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.POST("/send-email", func(c *gin.Context) {
+	r.POST("/send-email", VerifyJwtMiddleware(), func(c *gin.Context) {
 
 		var body struct {
 			To      string `json:"to"`
