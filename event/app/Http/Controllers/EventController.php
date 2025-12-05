@@ -18,7 +18,7 @@ class EventController extends Controller
         $events = Event::all();
 
         return response()->json([
-            'events'  => $events,
+            'data'  => $events,
             'message' => 'ok'
         ], 200);
     }
@@ -42,7 +42,7 @@ class EventController extends Controller
         ]);
 
         return response()->json([
-            'event'   => $event,
+            'data'   => $event,
             'message' => 'ok'
         ], 200);
     }
@@ -58,7 +58,7 @@ class EventController extends Controller
         $event = Event::find($id);
 
         return response()->json([
-            'event'   => $event,
+            'data'   => $event,
             'message' => 'ok'
         ], 200);
     }
