@@ -73,4 +73,21 @@ def baixar_certificado(certificado_id: str):
         headers={"Content-Disposition": f'inline; filename="{os.path.basename(arquivo_pdf)}"'}
     )
 
+@app.get("/validar-certificado/{certificado_id}")
+def validar_certificado(certificado_id: str):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT nome, arquivo FROM certificados WHERE uuid = ?", (certificado_id,))
+    result = cursor.fetchone()
+    conn.close()
+
+    if not result:
+        return {"valido": False, "mensagem": "Certificado não encontrado"}
+
+    nome, arquivo_pdf = result
+    return {
+        "valido": True,
+        "nome": nome,
+        "arquivo": arquivo_pdf
+    }
 
