@@ -36,11 +36,19 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
 
         return reply
         .status(200)
+        .setCookie('token', token, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: false,
+          domain: 'localhost',
+        })
         .setCookie('refreshToken', refreshToken, {
             path: '/',
             httpOnly: true,
             sameSite: true,
             secure: false,
+            domain: 'localhost',
         })
         .send({
             token,
@@ -91,6 +99,7 @@ export async function refresh(request: FastifyRequest, reply: FastifyReply) {
                 httpOnly: true,
                 sameSite: true,
                 secure: false,
+                domain: 'localhost',
             })
             .send({
                 token,
@@ -106,7 +115,66 @@ export async function refresh(request: FastifyRequest, reply: FastifyReply) {
 export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
   try {
     await request.jwtVerify();
+
+    const { sub, email } = request.user as {
+      sub: number
+      email: string
+    }
+
+    return {
+      id: sub,
+      email,
+    }
   } catch (error) {
     return reply.status(401).send({ message: 'Unauthorized' });
   }
+}
+
+export async function me(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const { sub } = request.user as { sub: string };
+
+  console.log(sub);
+  
+  const user = await prisma.user.findUnique({
+    where: { id: Number(sub) },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      googleId: true
+    },
+  });
+
+  if (!user) {
+    return reply.status(404).send({ message: 'User not found' });
+  }
+
+  return reply.send(user);
+}
+
+export async function allUsers(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const { sub } = request.user as { sub: string };
+
+  console.log(sub);
+  
+  const user = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      googleId: true
+    },
+  });
+
+  if (!user) {
+    return reply.status(404).send({ message: 'User not found' });
+  }
+
+  return reply.send(user);
 }
