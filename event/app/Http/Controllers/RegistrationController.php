@@ -30,15 +30,23 @@ class RegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        $registration = Registration::create([
-            'event_id' => $request->event_id,
-            'user'     => $request->user,
-            'status'   => Registration::STATUS_PENDING
-        ]);
+        $user = $request->get('user');
+
+        $registrationExists = Registration::where([
+            'event_id' => $request->eventId,
+            'user'     => $user['id'],
+        ])->first();
+
+        if (!$registrationExists) {
+            Registration::create([
+                'event_id' => $request->eventId,
+                'user'     => $user['id'],
+                'status'   => Registration::STATUS_PENDING
+            ]);
+        }
 
         return response()->json([
-            'data' => $registration,
-            'message'      => 'ok'
+            'message'      => 'Ok'
         ], 200);
     }
 
@@ -110,9 +118,9 @@ class RegistrationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function confirm(Request $request)
+    public function confirm($registrationId)
     {
-        $registration = Registration::find($request->registrationId);
+        $registration = Registration::find($registrationId);
 
         if (!$registration) {
             return response()->json([

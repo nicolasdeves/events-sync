@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Registration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class EventController extends Controller
@@ -17,10 +19,23 @@ class EventController extends Controller
     {
         $events = Event::all();
 
-        return response()->json([
-            'data'  => $events,
-            'message' => 'ok'
-        ], 200);
+        return $events;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function myEvents(Request $request)
+    {
+        $user = $request->get('user');
+
+        $events = Event::whereHas('registrations', function ($query) use ($user) {
+            $query->where('user', $user['id']);
+        })->get();
+
+        return $events;
     }
 
     /**
@@ -84,5 +99,63 @@ class EventController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Get events for admin
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function adminEvents(Request $request)
+    {
+        $events = Event::with('registrations')->get();
+
+        $userIds = $events
+            ->pluck('registrations')
+            ->flatten()
+            ->pluck('user')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (empty($userIds)) {
+            return response()->json($events);
+        }
+
+        $token = $request->cookie('token');
+        $usersResponse = Http::withToken($token)->get(
+            config('services.auth-service.url') . '/allUsers'
+        );
+
+        if ($usersResponse->failed()) {
+            return response()->json([
+                'message' => 'Erro ao buscar usuarios'
+            ], 500);
+        }
+
+        $users = collect($usersResponse->json())->keyBy('id');
+
+        $events = $events->map(function ($event) use ($users) {
+
+            $event->registrations = $event->registrations->map(function ($reg) use ($users) {
+
+                $user = $users->get((int) $reg->user);
+
+                if ($user) {
+                    $reg->user_id    = $user['id'];
+                    $reg->user_name  = $user['name'];
+                    $reg->user_email = $user['email'];
+                    $reg->googleId   = $user['googleId'];
+                }
+
+                return $reg;
+            });
+
+            return $event;
+        });
+
+        return response()->json($events);
     }
 }

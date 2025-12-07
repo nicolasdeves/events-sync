@@ -27,4 +27,9 @@ class Event extends Model
         'place_id',
         'capacity'
     ];
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class, 'event_id');
+    }
 }

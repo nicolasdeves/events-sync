@@ -3,7 +3,7 @@
 return [
 
     'auth-service' => [
-        'verify_user' => env('AUTH_SERVICE_URL'),
+        'url' => env('AUTH_SERVICE_URL'),
     ],
 
 

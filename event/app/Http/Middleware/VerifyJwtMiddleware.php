@@ -10,7 +10,7 @@ class VerifyJwtMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $token = $request->bearerToken();
+        $token = $request->cookie('token');
 
         if (!$token) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -22,6 +22,9 @@ class VerifyJwtMiddleware
         if ($response->failed()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+
+        $user = $response->json();
+        $request->attributes->set('user', $user);
 
         return $next($request);
     }
