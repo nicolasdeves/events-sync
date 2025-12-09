@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken, refreshToken, logout } from './authentication.service';
 
 const AUTHENTICATION_PORT=3000
-const URL = (import.meta as any).env.URL || 'localhost'
+const URL = (import.meta as any).env.VITE_API_URL || 'http://localhost'
 
 
 axios.defaults.withCredentials = true;
