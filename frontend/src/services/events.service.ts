@@ -259,7 +259,7 @@ export async function cancelRegistration(eventId: number): Promise<any> {
 export async function downloadCertificate(certificateCode: string): Promise<void> {
   try {
     // Abre a URL do certificado em nova aba para download
-    window.open(`http://127.0.0.1:8001/baixar-certificado/${certificateCode}`, '_blank')
+    window.open(`http://nicolas-deves.duckdns.org:8001/baixar-certificado/${certificateCode}`, '_blank')
   } catch (err) {
     console.error('Erro ao baixar certificado:', err)
     throw err
@@ -271,7 +271,7 @@ export async function downloadCertificate(certificateCode: string): Promise<void
  */
 export async function validateCertificate(certificateCode: string): Promise<any> {
   try {
-    const res = await fetch(`http://127.0.0.1:8001/validar-certificado/${certificateCode}`)
+    const res = await fetch(`http://nicolas-deves.duckdns.org:8001/validar-certificado/${certificateCode}`)
     if (!res.ok) {
       throw new Error('Certificado inválido')
     }
@@ -282,8 +282,3 @@ export async function validateCertificate(certificateCode: string): Promise<any>
     throw err
   }
 }
-
-// export default {
-//   listEvents,
-//   getEvent,
-// }
