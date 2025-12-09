@@ -32,7 +32,10 @@ fastify.register(fastifyJwt, {
 
 fastify.register(routes, { prefix: "/auth" });
 
-fastify.listen({ port }, (error) => {
-  if (error) throw error;
-  console.log(`🔥 Auth service running on port ${port}`);
-});
+fastify.listen(
+  { port, host: '0.0.0.0' },
+  (error) => {
+    if (error) throw error
+    console.log(`🔥 Auth service running on port ${port}`)
+  }
+)
