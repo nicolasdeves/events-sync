@@ -2,9 +2,10 @@ import axios from 'axios'
 
 // Certification microservice (FastAPI) - dev port assumption: 8000
 const CERT_PORT = 8000
+const URL = (import.meta as any).env.URL || 'localhost'
 
 export const certApi = axios.create({
-  baseURL: `http://localhost:${CERT_PORT}`,
+  baseURL: `${URL}:${CERT_PORT}`,
   withCredentials: false,
 })
 

@@ -47,6 +47,7 @@ services:
       - "8001:8001"
     volumes:
       - certification_db:/app/data
+      - ./arquivos:/app/arquivos
     networks:
       - app_net
 

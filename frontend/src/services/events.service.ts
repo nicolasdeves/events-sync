@@ -4,9 +4,10 @@ import { getToken, refreshToken, logout } from './authentication.service'
 import { Event } from '../components/EventsPage'
 
 const EVENTS_PORT = 8000
+const URL = (import.meta as any).env.URL || 'localhost'
 
 export const eventsApi = axios.create({
-  baseURL: `http://localhost:${EVENTS_PORT}`,
+  baseURL: `${URL}:${EVENTS_PORT}`,
   withCredentials: true,
 })
 

@@ -53,14 +53,14 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
           httpOnly: true,
           sameSite: 'lax',
           secure: false,
-          domain: 'localhost',
+          // domain: 'localhost',
         })
         .setCookie('refreshToken', refreshToken, {
             path: '/',
             httpOnly: true,
             sameSite: true,
             secure: false,
-            domain: 'localhost',
+            // domain: 'localhost',
         })
         .send({
             token,
@@ -110,7 +110,7 @@ export async function refresh(request: FastifyRequest, reply: FastifyReply) {
                 httpOnly: true,
                 sameSite: true,
                 secure: false,
-                domain: 'localhost',
+                // domain: 'localhost',
             })
             .send({
                 token,

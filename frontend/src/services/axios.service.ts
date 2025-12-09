@@ -2,11 +2,13 @@ import axios from 'axios';
 import { getToken, refreshToken, logout } from './authentication.service';
 
 const AUTHENTICATION_PORT=3000
+const URL = (import.meta as any).env.URL || 'localhost'
+
 
 axios.defaults.withCredentials = true;
 
 export const authApi = axios.create({
-  baseURL: `http://localhost:${AUTHENTICATION_PORT}`,
+  baseURL: `${URL}:${AUTHENTICATION_PORT}`,
 });
 
 authApi.interceptors.request.use(
