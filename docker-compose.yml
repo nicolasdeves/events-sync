@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: auth_postgres
+    environment:
+      POSTGRES_DB: event-syncxxxxxxxxxxxxxx
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+
+  mysql:
+    image: mysql:8.0
+    container_name: event_mysql
+    environment:
+      MYSQL_DATABASE: event
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_net
+
+  auth:
+    build: ./auth
+    container_name: auth_service
+    env_file:
+      - ./auth/.env
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+
+  certification:
+    build: ./certification
+    container_name: certification_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - certification_db:/app/data
+    networks:
+      - app_net
+
+  event:
+    build: ./event
+    container_name: event_service
+    env_file:
+      - ./event/.env
+    depends_on:
+      - mysql
+      - auth
+    ports:
+      - "8000:8000"
+    networks:
+      - app_net
+
+  notification:
+    build: ./notification
+    container_name: notification_service
+    env_file:
+      - ./notification/.env
+    ports:
+      - "3007:3007"
+    networks:
+      - app_net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_service
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5173:5173"
+    networks:
+      - app_net
+
+volumes:
+  postgres_data:
+  mysql_data:
+  certification_db:
+
+networks:
+  app_net:
+    driver: bridge
