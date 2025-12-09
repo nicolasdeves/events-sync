@@ -18,7 +18,7 @@ class CreateEventsTable extends Migration
             $table->string('uuid');
             $table->string('code');
             $table->string('name');
-            $table->date('date');
+            $table->dateTime('date');
             $table->integer('capacity');
 
             $table->unsignedBigInteger('place_id')->unsigned();

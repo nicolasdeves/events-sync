@@ -14,13 +14,15 @@ class Registration extends Model
     protected $fillable = [
         'event_id',
         'user',
-        'status'
+        'status',
+        'certificate'
     ];
 
     protected static $logAttributes = [
         'event_id',
         'user',
-        'status'
+        'status',
+        'certificate'
     ];
 
     public function event()

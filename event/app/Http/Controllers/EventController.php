@@ -17,7 +17,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
+        $events = Event::with(['place', 'registrations'])->get();
 
         return $events;
     }
@@ -33,7 +33,17 @@ class EventController extends Controller
 
         $events = Event::whereHas('registrations', function ($query) use ($user) {
             $query->where('user', $user['id']);
-        })->get();
+        })->get()
+            ->map(function ($event) use ($user) {
+                $registration = Registration::where('user', $user['id'])->where('event_id', $event->id)->first();
+
+                $event->status = $registration->status;
+                $event->certificate = $registration->certificate;
+
+                unset($event->registrations);
+
+                return $event;
+            });
 
         return $events;
     }
@@ -155,6 +165,19 @@ class EventController extends Controller
 
             return $event;
         });
+
+        return response()->json($events);
+    }
+
+    public function userEventsConfirmed(Request $request)
+    {
+        $user = $request->get('user');
+        $userId = $user['id'];
+
+        $events = Event::whereHas('registrations', function ($query) use ($userId) {
+            $query->where('status', Registration::STATUS_CONFIRMED);
+            $query->where('user', $userId);
+        })->get();
 
         return response()->json($events);
     }

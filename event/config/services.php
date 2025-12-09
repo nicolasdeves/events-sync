@@ -4,11 +4,16 @@ return [
 
     'auth-service' => [
         'url' => env('AUTH_SERVICE_URL'),
+        'jwt' => env('JWT_VERIFY_URL'),
     ],
 
+    'notification-service' => [
+        'url' => env('NOTIFICATION_SERVICE_URL'),
+    ],
 
-
-
+    'certification-service' => [
+        'url' => env('CERTIFICATION_SERVICE_URL'),
+    ],
 
 
 

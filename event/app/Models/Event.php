@@ -32,4 +32,9 @@ class Event extends Model
     {
         return $this->hasMany(Registration::class, 'event_id');
     }
+
+    public function place()
+    {
+        return $this->belongsTo(Place::class, 'place_id');
+    }
 }

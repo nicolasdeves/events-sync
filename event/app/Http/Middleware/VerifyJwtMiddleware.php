@@ -16,7 +16,8 @@ class VerifyJwtMiddleware
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $url = env('JWT_VERIFY_URL');
+        $url = config('services.auth-service.jwt');
+
         $response = Http::withToken($token)->post($url);
 
         if ($response->failed()) {

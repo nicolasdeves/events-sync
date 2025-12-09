@@ -24,9 +24,21 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
             })
           }
 
+          if (user && !user.googleId) {
+            await prisma.user.update({
+              where: {
+                id: user.id,
+              },
+              data: {
+                name: data.name,
+                googleId: data.sub
+              },
+            });
+          }
+
           const token = await reply.jwtSign(
             { sub: user.id, email: user.email },
-            { expiresIn: '15m' }               
+            { expiresIn: '45m' }               
           );
 
         const refreshToken = await reply.jwtSign(
@@ -177,4 +189,37 @@ export async function allUsers(
   }
 
   return reply.send(user);
+}
+
+export async function quickRegister(request: FastifyRequest, reply: FastifyReply) {
+  const schema = z.object({
+    name: z.string(),
+    email: z.string(),
+  });
+
+  const data = schema.parse(request.body);
+
+  const emailAlreadyExists = await prisma.user.findFirst({ where: { email: data.email }});
+
+  if (emailAlreadyExists) {
+    return reply.status(201).send({ message: 'Email já cadastrado!', dados: data });
+  }
+
+  const user = await prisma.user.create({ data })
+
+  return reply.status(201).send({ message: `Usuário ${user.name} cadastrado!`, user });
+
+}
+
+export async function getUser(request: FastifyRequest, reply: FastifyReply) {
+  const schema = z.object({
+    userId: z.coerce.number(),
+  });
+
+  const data = schema.parse(request.params);
+
+  const user = await prisma.user.findFirst({ where: { id: data.userId }});
+  
+  return reply.status(200).send({ message: `Usuário encontrado`, user });
+
 }
