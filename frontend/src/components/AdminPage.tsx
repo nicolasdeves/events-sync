@@ -387,7 +387,6 @@ function AdminPage() {
   }
 
   const syncPendingOperations = async () => {
-    console.log('sincronizando')
     if (!online || syncing) return
     
     setSyncing(true)
@@ -395,7 +394,6 @@ function AdminPage() {
     
     for (const operation of operations.filter(op => op.type === 'validate_user')) {
       try {
-        console.log(operation.data.registrationId)
         await validateUser(operation.data.registrationId)
         removePendingOperation(operation.id)
         

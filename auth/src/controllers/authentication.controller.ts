@@ -75,7 +75,6 @@ export async function refresh(request: FastifyRequest, reply: FastifyReply) {
     try {
         const refreshToken = request.cookies.refreshToken;
 
-        console.log(refreshToken)
         if (!refreshToken) {
             return reply.status(401).send({ 
                 error: 'Refresh token não encontrado' 
@@ -148,8 +147,6 @@ export async function me(
 ) {
   const { sub } = request.user as { sub: string };
 
-  console.log(sub);
-  
   const user = await prisma.user.findUnique({
     where: { id: Number(sub) },
     select: {
@@ -173,8 +170,6 @@ export async function allUsers(
 ) {
   const { sub } = request.user as { sub: string };
 
-  console.log(sub);
-  
   const user = await prisma.user.findMany({
     select: {
       id: true,

@@ -182,8 +182,6 @@ class RegistrationController extends Controller
         $email = $userResponse->json('user.email');
         $name = $userResponse->json('user.name');
 
-        \Log::info($email);
-
         $subject = "✅ Presença confirmada no evento!";
         $message =
         'Prezado(a),

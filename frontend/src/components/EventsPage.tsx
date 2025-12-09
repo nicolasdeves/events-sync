@@ -30,8 +30,6 @@ function EventsPage() {
   const fetchEvents = async () => {
     const eventsDB = await listEvents();
     eventsDB && setEvents(eventsDB);
-    console.log('eventsDB')
-    console.log(eventsDB)
   }
 
   useEffect(() => {

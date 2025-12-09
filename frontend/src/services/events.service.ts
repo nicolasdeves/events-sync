@@ -108,11 +108,9 @@ export async function listEvents(
     const res = await eventsApi.get<Event[]>('/events', { params })
     return res.data
   } catch (err: any) {
-    console.log(err.status)
     if (err.status == 401) {
       logout()
     }
-    console.log('aaaaaaa')
     return []
   }
 }
@@ -233,8 +231,6 @@ export async function createQuickUser(userData: {
  */
 export async function registerUserToEvent(eventId: number, userId: number): Promise<any> {
   try {
-    console.log(eventId)
-    console.log(userId)
     const res = await eventsApi.post(`/registrations/event/${eventId}/register-user`, { userId })
     return res.data
   } catch (err) {
