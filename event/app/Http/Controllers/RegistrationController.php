@@ -105,6 +105,8 @@ class RegistrationController extends Controller
             $message = 'Registration not found';
         }
 
+        $eventName = $registration->event->name;
+
         $registration->delete();
 
         $userResponse = Http::withToken($token)->get(
@@ -116,7 +118,7 @@ class RegistrationController extends Controller
         $subject = "❌ Inscrição cancelada no evento!";
         $emailMessage =
             'Prezado(a),
-        Informamos gue sua inscrição no evento "' . $registration->event->name . '" foi cancelada.
+        Informamos gue sua inscrição no evento "' . $eventName . '" foi cancelada.
 
         Atenciosamente,
         Equipe do evento';
