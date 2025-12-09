@@ -258,6 +258,7 @@ class RegistrationController extends Controller
      */
     public function cancelRegistration(Request $request, $eventId)
     {
+        $token = $request->cookie('token');
         $user = $request->get('user');
         $userId = $user['id'];
 
@@ -272,7 +273,25 @@ class RegistrationController extends Controller
             ], 404);
         }
 
+        $eventName = $registration->event->name;
         $registration->delete();
+
+        
+        $userResponse = Http::withToken($token)->get(
+            config('services.auth-service.url') . '/me'
+        );
+
+        $email = $userResponse->json('email');
+
+        $subject = "❌ Inscrição cancelada no evento!";
+        $emailMessage =
+        'Prezado(a),
+        Informamos gue sua inscrição no evento "' . $eventName . '" foi cancelada.
+
+        Atenciosamente,
+        Equipe do evento';
+
+        self::sendEmail($token, $email, $subject, $emailMessage);
 
         return response()->json([
             'message' => 'Participação cancelada com sucesso'
