@@ -73,9 +73,6 @@ Sistema de gerenciamento de eventos, onde usuários podem se cadastrar, pesquisa
 - Operações offline permitem registro e sincronização posterior.
 
 
-## Rotas
-> Todas as rotas requerem **Bearer Token (JWT)** no header `Authorization`.
-
 ---
 
 # Documentação de APIs - Microserviços
