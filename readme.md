@@ -31,42 +31,9 @@ Sistema de gerenciamento de eventos, onde usuários podem se cadastrar, pesquisa
 
 ---
 
-## Endpoints da API
-
-| Método | Endpoint | Ação |
-|--------|----------|------|
-| GET    | /eventos | Consulta todos os eventos vigentes |
-| GET    | /eventos/{id} | Consulta detalhes de um evento |
-| GET    | /certificados/{id} | Consulta certificado de participante |
-| POST   | /certificados | Emite um certificado |
-| GET    | /certificados/{id}/validar | Verifica autenticidade do certificado |
-| GET    | /inscricoes/{id} | Consulta inscrição de participante |
-| POST   | /inscricoes | Registra uma inscrição |
-| DELETE | /inscricoes/{id} | Cancela inscrição |
-| POST   | /presencas | Registra presença |
-| POST   | /usuarios | Cria um usuário |
-| POST   | /auth | Autenticação |
-| POST   | /emails | Envio de e-mail |
-
----
-
 ## Controle de Acesso
 - Todas as requisições são autenticadas.
 - Logs de todas as requisições são gerados.
-
----
-
-## Banco de Dados
-- Estrutura modular para suportar microsserviços.
-- Cadastro de eventos e dados de apoio alimentados via banco de dados.
-- Modelos principais:
-  - Usuário
-  - Evento
-  - Inscrição
-  - Presença
-  - Certificado
-  - Logs
-  - E-mails
 
 ---
 
@@ -100,18 +67,87 @@ Sistema de gerenciamento de eventos, onde usuários podem se cadastrar, pesquisa
 
 ---
 
-## Tecnologias Sugeridas
-- Linguagens: múltiplas (ex: Node.js + Python, PHP + JS, etc.)
-- Banco de dados: livre escolha (relacional ou NoSQL)
-- Microsserviços: modularização por funcionalidade
-- Interface gráfica: validação do roteiro de testes
-- Autenticação: JWT ou similar
-- Logs: todas as rotas registradas
-- Teste de rotas: Postman, Insomnia ou similares
-
----
-
 ## Observações
 - Cadastro simplificado para início de uso.
 - Cada evento possui template de certificado.
 - Operações offline permitem registro e sincronização posterior.
+
+
+## Rotas
+> Todas as rotas requerem **Bearer Token (JWT)** no header `Authorization`.
+
+---
+
+# Documentação de APIs - Microserviços
+
+> Todas as rotas requerem **Bearer Token (JWT)** no header `Authorization`.
+
+
+## Notification Service
+
+| Método | Rota | URL | Body |
+|--------|------|-----|------|
+| POST | /send-email | `http://nicolas-deves.duckdns.org:3007/send-email` | ```json { "to": "NOME_DO_DESTINATARIO", "subject": "ASSUNTO_DO_EMAIL", "message": "MENSAGEM_DO_EMAIL" } ``` |
+
+---
+
+## Certification Service
+
+| Método | Rota | URL | Body |
+|--------|------|-----|------|
+| POST | /gerar-certificado/CURSO/USUARIO | `http://nicolas-deves.duckdns.org:8001/gerar-certificado/CURSO/USUARIO` | - |
+| GET  | /baixar-certificado/ARQUIVO_UUID | `http://nicolas-deves.duckdns.org:8001/baixar-certificado/ARQUIVO_UUID` | - |
+| GET  | /validar-certificado/ARQUIVO_UUID | `http://nicolas-deves.duckdns.org:8001/validar-certificado/ARQUIVO_UUID` | - |
+
+---
+
+## Registration Service
+
+| Método | Rota | URL | Body |
+|--------|------|-----|------|
+| GET | /registrations | `http://nicolas-deves.duckdns.org:8000/registrations` | - |
+| GET | /registrations/user/USER_ID | `http://nicolas-deves.duckdns.org:8000/registrations/user/USER_ID` | - |
+| POST | /registrations | `http://nicolas-deves.duckdns.org:8000/registrations` | ```json { "eventId": EVENT_ID } ``` |
+| POST | /registrations/event/EVENT_ID/register-user | `http://nicolas-deves.duckdns.org:8000/registrations/event/EVENT_ID/register-user` | ```json { "user": USER_ID } ``` |
+| GET | /registrations/REGISTRATION_ID | `http://nicolas-deves.duckdns.org:8000/registrations/REGISTRATION_ID` | - |
+| PUT | /registrations/REGISTRATION_ID/confirm | `http://nicolas-deves.duckdns.org:8000/registrations/REGISTRATION_ID/confirm` | - |
+| DELETE | /registrations/REGISTRATION_ID | `http://nicolas-deves.duckdns.org:8000/registrations/REGISTRATION_ID` | - |
+
+---
+
+## Event Service
+
+| Método | Rota | URL | Body |
+|--------|------|-----|------|
+| GET | /events/EVENT_ID | `http://nicolas-deves.duckdns.org:8000/events/EVENT_ID` | - |
+| GET | /events | `http://nicolas-deves.duckdns.org:8000/events` | - |
+| GET | /events/admin | `http://nicolas-deves.duckdns.org:8000/events/admin` | - |
+| GET | /events/my | `http://nicolas-deves.duckdns.org:8000/events/my` | - |
+| GET | /events/confirmed-events | `http://nicolas-deves.duckdns.org:8000/events/confirmed-events` | - |
+| POST | /events | `http://nicolas-deves.duckdns.org:8000/events` | ```json { "code": "CODIGO_DO_EVENTO", "name": "NOME_DO_EVENTO", "date": "AAAA-MM-DD HH:MM", "capacity": CAPACIDADE, "place_id": PLACE_ID, "event_type_id": EVENT_TYPE_ID } ``` |
+
+---
+
+## Auth Service
+
+| Método | Rota | URL | Body |
+|--------|------|-----|------|
+| GET | /auth/user/USER_ID | `http://nicolas-deves.duckdns.org:3000/auth/user/USER_ID` | - |
+| POST | /auth/verify-jwt | `http://nicolas-deves.duckdns.org:3000/auth/verify-jwt` | - |
+| GET | /auth/me | `http://nicolas-deves.duckdns.org:3000/auth/me` | - |
+| POST | /auth/refresh | `http://nicolas-deves.duckdns.org:3000/auth/refresh` | - |
+| POST | /auth/login | `http://nicolas-deves.duckdns.org:3000/auth/login` | ```json { "name": "NOME_DO_USUARIO", "email": "EMAIL_DO_USUARIO", "sub": "SUB_DO_USUARIO" } ``` |
+| POST | /auth/quick-register | `http://nicolas-deves.duckdns.org:3000/auth/quick-register` | ```json { "name": "NOME_DO_USUARIO", "email": "EMAIL_DO_USUARIO" } ``` |
+
+---
+
+## Arquitetura
+
+![Arquitetura](docs/architecture.png)
+
+## Modelo ER
+
+![ER](docs/er.png)
+
+
+
